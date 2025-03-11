@@ -1,0 +1,441 @@
+/* Reset default styles */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+/* Global CSS Variables */
+:root {
+    /* Color scheme for dark theme */
+    --bg-primary: #1e1e1e;    /* Main background color */
+    --bg-secondary: #2d2d2d;  /* Secondary background for components */
+    --bg-tertiary: #3d3d3d;   /* Tertiary background for headers */
+    --bg-button: #4a4a4a;     /* Button background color */
+    --bg-button-hover: #5a5a5a; /* Button hover state */
+    --border-color: #3d3d3d;  /* Border color for elements */
+    --text-primary: #ffffff;   /* Primary text color */
+    --text-secondary: #cccccc; /* Secondary text color */
+}
+
+/* Base styles */
+body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+    background-color: var(--bg-primary);
+    color: var(--text-primary);
+    height: 100vh;
+    overflow: hidden;
+}
+
+/* Layout Components */
+.container {
+    height: 100vh;
+    display: flex;
+    flex-direction: column;
+}
+
+/* Header Styling */
+header {
+    background-color: var(--bg-secondary);
+    padding: 1rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-bottom: 1px solid var(--border-color);
+}
+
+/* Logo styling */
+.logo {
+    font-size: 1.2rem;
+    font-weight: bold;
+}
+
+/* Action buttons container */
+.actions {
+    display: flex;
+    gap: 0.5rem;
+}
+
+/* Action button styling */
+.actions button {
+    background-color: var(--bg-button);
+    color: var(--text-primary);
+    border: none;
+    padding: 0.5rem 1rem;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: background-color 0.2s;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.actions button:hover {
+    background-color: var(--bg-button-hover);
+}
+
+.actions button svg {
+    width: 16px;
+    height: 16px;
+}
+
+main {
+    flex: 1;
+    overflow: hidden;
+}
+
+/* Editor Layout */
+.editor-container {
+    display: flex;
+    flex: 1;
+    gap: 1rem;
+    padding: 1rem;
+    height: calc(100vh - 60px);
+    overflow: hidden;
+}
+
+/* Editor Panels */
+.editor-panel {
+    flex: 0 0 40%;
+    display: flex;
+    flex-direction: column;
+    min-width: 300px;
+    background: var(--bg-secondary);
+    border-radius: 8px;
+    overflow: hidden;
+}
+
+/* Preview Panel */
+.preview-panel {
+    flex: 0 0 60%;
+    display: flex;
+    flex-direction: column;
+    background: var(--bg-secondary);
+    border-radius: 8px;
+    overflow: hidden;
+    min-width: 400px;
+}
+
+.editor-header, .preview-header {
+    background-color: var(--bg-tertiary);
+    padding: 0.5rem;
+    display: flex;
+    gap: 0.5rem;
+    align-items: center;
+}
+
+.preview-header {
+    justify-content: space-between;
+    align-items: center;
+}
+
+.preview-controls {
+    display: flex;
+    gap: 0.5rem;
+}
+
+.preview-controls button {
+    background: none;
+    border: none;
+    color: var(--text-secondary);
+    cursor: pointer;
+    padding: 0.25rem;
+    border-radius: 4px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s ease;
+}
+
+.preview-controls button:hover {
+    background-color: var(--bg-button);
+    color: var(--text-primary);
+}
+
+.tab-btn {
+    padding: 0.5rem 1rem;
+    background: none;
+    border: none;
+    color: var(--text-secondary);
+    cursor: pointer;
+    border-radius: 4px;
+    transition: all 0.2s;
+}
+
+.tab-btn.active {
+    background-color: var(--bg-button);
+    color: var(--text-primary);
+}
+
+.editor-content {
+    flex: 1;
+    position: relative;
+    overflow: hidden;
+}
+
+.editor-instance {
+    display: none;
+    height: 100%;
+}
+
+.editor-instance.active {
+    display: block;
+}
+
+/* CodeMirror Customization */
+.CodeMirror {
+    height: 100% !important;
+    font-size: 14px;
+}
+
+/* CodeMirror Hints Styling */
+.CodeMirror-hints {
+    position: absolute;
+    z-index: 10;
+    overflow: hidden;
+    list-style: none;
+    margin: 0;
+    padding: 2px;
+    border-radius: 4px;
+    border: 1px solid var(--border-color);
+    background: var(--bg-secondary);
+    color: var(--text-primary);
+    font-size: 14px;
+    font-family: monospace;
+    max-height: 20em;
+    overflow-y: auto;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+}
+
+.CodeMirror-hint {
+    margin: 0;
+    padding: 4px 8px;
+    border-radius: 2px;
+    white-space: pre;
+    cursor: pointer;
+}
+
+li.CodeMirror-hint-active {
+    background: var(--bg-button);
+    color: var(--text-primary);
+}
+
+.CodeMirror-foldgutter {
+    width: 1.2em;
+}
+
+.CodeMirror-foldgutter-open,
+.CodeMirror-foldgutter-folded {
+    cursor: pointer;
+    font-size: 12px;
+}
+
+.CodeMirror-foldgutter-open:after {
+    content: "▾";
+}
+
+.CodeMirror-foldgutter-folded:after {
+    content: "▸";
+}
+
+.CodeMirror-vscrollbar,
+.CodeMirror-hscrollbar {
+    outline: none;
+}
+
+.CodeMirror-scrollbar-filler {
+    background: transparent;
+}
+
+.CodeMirror-hint,
+.tab-btn,
+.actions button {
+    transition: all 0.2s ease;
+}
+
+#preview {
+    flex: 1;
+    width: 100%;
+    border: none;
+    padding: 1rem;
+    background-color: white;
+    display: block;
+}
+
+/* Error Display */
+.error-display {
+    position: fixed;
+    bottom: 1rem;
+    right: 1rem;
+    background-color: #ff5555;
+    color: white;
+    padding: 0.5rem 1rem;
+    border-radius: 4px;
+    font-family: monospace;
+    z-index: 9999;
+    max-width: 80%;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+}
+
+/* Error styling */
+.error-marker {
+    color: #ff5555;
+    padding: 0 3px;
+    cursor: pointer;
+    font-weight: bold;
+}
+
+.error-line {
+    background-color: rgba(255, 85, 85, 0.2);
+    border-bottom: 2px wavy #ff5555;
+}
+
+.CodeMirror-gutters {
+    border-right: 1px solid var(--border-color);
+}
+
+.error-gutter {
+    width: 20px;
+}
+
+/* Color Picker Styling */
+.color-picker-container {
+    position: absolute;
+    z-index: 9999;
+}
+
+.pickr {
+    position: relative;
+}
+
+.pickr .pcr-button {
+    height: 2em;
+    width: 2em;
+    padding: 0;
+    border-radius: 4px;
+    background: var(--bg-secondary);
+    border: 1px solid var(--border-color);
+}
+
+.pcr-app {
+    background: var(--bg-secondary);
+    border: 1px solid var(--border-color);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+}
+
+.pcr-app .pcr-swatches > button {
+    width: 1.5em;
+    height: 1.5em;
+    border-radius: 3px;
+}
+
+.pcr-app .pcr-interaction input {
+    background: var(--bg-tertiary);
+    border: 1px solid var(--border-color);
+    color: var(--text-primary);
+    border-radius: 4px;
+}
+
+.pcr-app .pcr-type.active {
+    background: var(--bg-button);
+    color: var(--text-primary);
+}
+
+.pcr-app .pcr-save {
+    background: var(--bg-button);
+    color: var(--text-primary);
+}
+
+.pcr-app .pcr-save:hover {
+    background: var(--bg-button-hover);
+}
+
+/* Add color preview for CSS color values */
+.cm-atom.cm-css-color,
+.cm-keyword.cm-css-color,
+.cm-variable-2.cm-css-color {
+    border-bottom: 2px solid;
+    cursor: pointer;
+}
+
+/* Notifications */
+.notification {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    padding: 12px 24px;
+    border-radius: 4px;
+    color: white;
+    font-size: 14px;
+    opacity: 0;
+    transform: translateY(20px);
+    transition: opacity 0.3s ease, transform 0.3s ease;
+    z-index: 10000;
+}
+
+.notification.visible {
+    opacity: 1;
+    transform: translateY(0);
+}
+
+.notification.success {
+    background-color: #4caf50;
+}
+
+.notification.error {
+    background-color: #f44336;
+}
+
+.notification.info {
+    background-color: #2196f3;
+}
+
+/* Action Buttons */
+.action-buttons {
+    display: flex;
+    gap: 0.5rem;
+    padding: 0.5rem;
+    background: var(--bg-secondary);
+    border-bottom: 1px solid var(--border-color);
+}
+
+.action-buttons button {
+    padding: 0.5rem 1rem;
+    border: none;
+    border-radius: 4px;
+    background: var(--bg-button);
+    color: var(--text-primary);
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    transition: all 0.2s ease;
+}
+
+.action-buttons button:hover {
+    background: var(--bg-button-hover);
+}
+
+.action-buttons button svg {
+    width: 16px;
+    height: 16px;
+}
+
+.action-buttons button:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+    .editor-container {
+        flex-direction: column;
+    }
+
+    .editor-panel,
+    .preview-panel {
+        flex: 1 1 100%;
+        min-width: 100%;
+        height: 50vh;
+    }
+}
