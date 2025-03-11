@@ -6,10 +6,10 @@ The Online IDE is a modern, lightweight, and easy-to-use web-based code editor d
 ## 📸 Screenshots
 ![Online IDE Screenshot](https://i.ibb.co.com/21X295GZ/Screenshot-11-3-2025-13116-127-0-0-1.jpg)
 
-## 🚀 3. Live Demo
+## 🚀 Live Demo
 🔗 [Live Demo](https://onlineide-novara.netlify.app/)
 
-## ✨ 4. Features
+## ✨ Features
 - ▶️ **Run Code**: Execute your code directly in the browser.
 - 💾 **Save**: Save your code for later use.
 - 🔄 **Reset**: Clear the editor with a single click.
@@ -17,7 +17,7 @@ The Online IDE is a modern, lightweight, and easy-to-use web-based code editor d
 - ⚡ **Auto-complete**: Smart suggestions for faster coding.
 - 🛠️ **Additional Functionalities**: Basic features to enhance the coding experience.
 
-## 🛠 5. Tech Stack
+## 🛠 Tech Stack
 - **Frontend**: ![HTML5](https://img.shields.io/badge/-HTML5-orange?style=flat&logo=html5) 
   ![CSS3](https://img.shields.io/badge/-CSS3-blue?style=flat&logo=css3) 
   ![JavaScript](https://img.shields.io/badge/-JavaScript-yellow?style=flat&logo=javascript)
