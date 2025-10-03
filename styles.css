@@ -160,11 +160,63 @@ main {
     cursor: pointer;
     border-radius: 4px;
     transition: all 0.2s;
+    font-weight: 500;
+    position: relative;
 }
 
 .tab-btn.active {
     background-color: var(--bg-button);
     color: var(--text-primary);
+}
+
+/* XML Tab Specific Styling */
+.tab-btn[data-tab="xml"] {
+    color: #ff6b35;
+}
+
+.tab-btn[data-tab="xml"].active {
+    background-color: rgba(255, 107, 53, 0.2);
+    color: #ff6b35;
+}
+
+/* JSON Tab Specific Styling */
+.tab-btn[data-tab="json"] {
+    color: #ffd23f;
+}
+
+.tab-btn[data-tab="json"].active {
+    background-color: rgba(255, 210, 63, 0.2);
+    color: #ffd23f;
+}
+
+/* HTML Tab Specific Styling */
+.tab-btn[data-tab="html"] {
+    color: #e34c26;
+}
+
+.tab-btn[data-tab="html"].active {
+    background-color: rgba(227, 76, 38, 0.2);
+    color: #e34c26;
+}
+
+/* CSS Tab Specific Styling */
+.tab-btn[data-tab="css"] {
+    color: #1572b6;
+}
+
+.tab-btn[data-tab="css"].active {
+    background-color: rgba(21, 114, 182, 0.2);
+    color: #1572b6;
+}
+
+/* JavaScript Tab Specific Styling */
+.tab-btn[data-tab="js"] {
+    color: #f7df1e;
+}
+
+.tab-btn[data-tab="js"].active {
+    background-color: rgba(247, 223, 30, 0.2);
+    color: #f7df1e;
 }
 
 .editor-content {
@@ -296,6 +348,29 @@ li.CodeMirror-hint-active {
 
 .error-gutter {
     width: 20px;
+}
+
+/* JSON Error Styling */
+.json-error-line {
+    background-color: rgba(255, 85, 85, 0.1) !important;
+    border-left: 3px solid #ff5555;
+}
+
+.json-error-marker {
+    color: #ff5555 !important;
+    font-weight: bold;
+    cursor: pointer;
+    font-size: 14px;
+}
+
+.json-error-marker:hover {
+    color: #ff7777 !important;
+}
+
+/* JSON Validation Success Styling */
+.json-valid-line {
+    background-color: rgba(80, 250, 123, 0.1) !important;
+    border-left: 3px solid #50fa7b;
 }
 
 /* Color Picker Styling */

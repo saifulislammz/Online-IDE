@@ -80,10 +80,44 @@ const jsConfig = {
     hint: CodeMirror.hint.javascript,
 };
 
+/**
+ * XML Editor Configuration
+ * Specific configuration for XML code editing
+ */
+const xmlConfig = {
+    ...editorConfig,
+    mode: 'xml',
+    autoCloseTags: true,
+    hint: CodeMirror.hint.xml,
+};
+
+/**
+ * JSON Editor Configuration
+ * Specific configuration for JSON code editing with validation
+ */
+const jsonConfig = {
+    ...editorConfig,
+    mode: {name: 'javascript', json: true},
+    lint: true,
+    gutters: ['CodeMirror-lint-markers', 'CodeMirror-linenumbers', 'CodeMirror-foldgutter'],
+    hint: function(editor) {
+        // Custom JSON hints
+        const cursor = editor.getCursor();
+        const token = editor.getTokenAt(cursor);
+        return {
+            list: ['"key":', '"value"', 'true', 'false', 'null'],
+            from: CodeMirror.Pos(cursor.line, token.start),
+            to: CodeMirror.Pos(cursor.line, token.end)
+        };
+    }
+};
+
 // Initialize CodeMirror editors
 const htmlEditor = CodeMirror.fromTextArea(document.getElementById('htmlEditor'), htmlConfig);
 const cssEditor = CodeMirror.fromTextArea(document.getElementById('cssEditor'), cssConfig);
 const jsEditor = CodeMirror.fromTextArea(document.getElementById('jsEditor'), jsConfig);
+const xmlEditor = CodeMirror.fromTextArea(document.getElementById('xmlEditor'), xmlConfig);
+const jsonEditor = CodeMirror.fromTextArea(document.getElementById('jsonEditor'), jsonConfig);
 
 // Editor Management
 /**
@@ -102,12 +136,15 @@ class EditorManager {
         this.editors = {
             html: { instance: htmlEditor, container: document.getElementById('htmlContainer') },
             css: { instance: cssEditor, container: document.getElementById('cssContainer') },
-            js: { instance: jsEditor, container: document.getElementById('jsContainer') }
+            js: { instance: jsEditor, container: document.getElementById('jsContainer') },
+            xml: { instance: xmlEditor, container: document.getElementById('xmlContainer') },
+            json: { instance: jsonEditor, container: document.getElementById('jsonContainer') }
         };
         this.activeEditor = 'html';
         this.setupEventListeners();
         this.setupAutocompletion();
         this.setupColorPicker();
+        this.setupJSONFeatures();
         this.checkForErrors();
     }
 
@@ -254,6 +291,19 @@ class EditorManager {
     }
 
     setupEventListeners() {
+        // Debounce utility function
+        const debounce = (func, wait) => {
+            let timeout;
+            return function executedFunction(...args) {
+                const later = () => {
+                    clearTimeout(timeout);
+                    func(...args);
+                };
+                clearTimeout(timeout);
+                timeout = setTimeout(later, wait);
+            };
+        };
+
         // Tab switching
         document.querySelectorAll('.tab-btn').forEach(tab => {
             tab.addEventListener('click', () => {
@@ -431,6 +481,30 @@ class EditorManager {
                         space_after_named_function: true
                     });
                     break;
+                case 'xml':
+                    // XML formatting using html_beautify with XML-specific options
+                    beautifiedCode = html_beautify(instance.getValue(), {
+                        ...options,
+                        indent_size: 2,
+                        preserve_newlines: false,
+                        max_preserve_newlines: 0
+                    });
+                    break;
+                case 'json':
+                    // JSON formatting with validation
+                    try {
+                        const jsonValue = instance.getValue().trim();
+                        if (jsonValue) {
+                            const parsed = JSON.parse(jsonValue);
+                            beautifiedCode = JSON.stringify(parsed, null, 2);
+                        } else {
+                            beautifiedCode = jsonValue;
+                        }
+                    } catch (jsonError) {
+                        this.showNotification('Invalid JSON format! Please check your syntax.', 'error');
+                        return;
+                    }
+                    break;
             }
 
             // Update editor content
@@ -448,7 +522,9 @@ class EditorManager {
         return {
             html: this.editors.html.instance.getValue(),
             css: this.editors.css.instance.getValue(),
-            js: this.editors.js.instance.getValue()
+            js: this.editors.js.instance.getValue(),
+            xml: this.editors.xml.instance.getValue(),
+            json: this.editors.json.instance.getValue()
         };
     }
 
@@ -456,6 +532,8 @@ class EditorManager {
         this.editors.html.instance.setValue(code.html || '');
         this.editors.css.instance.setValue(code.css || '');
         this.editors.js.instance.setValue(code.js || '');
+        this.editors.xml.instance.setValue(code.xml || '');
+        this.editors.json.instance.setValue(code.json || '');
         this.updatePreview(); // Update preview after setting values
     }
 
@@ -560,6 +638,163 @@ class EditorManager {
             notification.classList.remove('visible');
             setTimeout(() => notification.remove(), 300);
         }, 2000);
+    }
+
+    /**
+     * Auto-format JSON with proper indentation and validation
+     * Automatically formats JSON when user types or pastes content
+     */
+    autoFormatJSON() {
+        const jsonContent = this.editors.json.instance.getValue();
+        
+        // Skip if content is empty or only whitespace
+        if (!jsonContent.trim()) {
+            return;
+        }
+
+        try {
+            // Parse and re-stringify with proper formatting
+            const parsed = JSON.parse(jsonContent);
+            const formatted = JSON.stringify(parsed, null, 2);
+            
+            // Only update if content has changed
+            if (formatted !== jsonContent) {
+                const cursor = this.editors.json.instance.getCursor();
+                this.editors.json.instance.setValue(formatted);
+                this.editors.json.instance.setCursor(cursor);
+                this.showNotification('JSON auto-formatted successfully!', 'success');
+            }
+        } catch (error) {
+            // Don't show error for incomplete JSON while typing
+            if (jsonContent.trim().length > 10) {
+                this.showNotification('Invalid JSON format: ' + error.message, 'warning');
+            }
+        }
+    }
+
+    /**
+     * Validate JSON syntax and structure
+     * Provides detailed error messages for JSON validation
+     */
+    validateJSON() {
+        const jsonContent = this.editors.json.instance.getValue();
+        
+        if (!jsonContent.trim()) {
+            return { valid: true, message: 'Empty JSON' };
+        }
+
+        try {
+            const parsed = JSON.parse(jsonContent);
+            
+            // Additional validation checks
+            if (typeof parsed === 'object' && parsed !== null) {
+                const jsonString = JSON.stringify(parsed);
+                if (jsonString.length > 1000000) { // 1MB limit
+                    return { 
+                        valid: false, 
+                        message: 'JSON too large (exceeds 1MB limit)' 
+                    };
+                }
+            }
+            
+            return { 
+                valid: true, 
+                message: 'Valid JSON', 
+                data: parsed 
+            };
+        } catch (error) {
+            return { 
+                valid: false, 
+                message: error.message,
+                line: this.getJSONErrorLine(error.message, jsonContent)
+            };
+        }
+    }
+
+    /**
+     * Extract line number from JSON error message
+     * Helps users locate JSON syntax errors
+     */
+    getJSONErrorLine(errorMessage, jsonContent) {
+        // Try to extract position from error message
+        const positionMatch = errorMessage.match(/position (\d+)/);
+        if (positionMatch) {
+            const position = parseInt(positionMatch[1]);
+            const lines = jsonContent.substring(0, position).split('\n');
+            return lines.length;
+        }
+        
+        // Try to extract line from error message
+        const lineMatch = errorMessage.match(/line (\d+)/);
+        if (lineMatch) {
+            return parseInt(lineMatch[1]);
+        }
+        
+        return null;
+    }
+
+    /**
+     * Setup JSON auto-formatting and validation
+     * Configures real-time JSON formatting and validation
+     */
+    setupJSONFeatures() {
+        // Auto-format on paste
+        this.editors.json.instance.on('paste', () => {
+            setTimeout(() => this.autoFormatJSON(), 100);
+        });
+
+        // Validate on change with debounce
+        let validationTimeout;
+        this.editors.json.instance.on('change', () => {
+            clearTimeout(validationTimeout);
+            validationTimeout = setTimeout(() => {
+                const validation = this.validateJSON();
+                if (!validation.valid && validation.line) {
+                    this.highlightJSONError(validation.line, validation.message);
+                } else {
+                    this.clearJSONErrors();
+                }
+            }, 500);
+        });
+
+        // Format shortcut (Ctrl+Shift+F for JSON)
+        this.editors.json.instance.setOption('extraKeys', {
+            ...this.editors.json.instance.getOption('extraKeys'),
+            'Ctrl-Shift-F': () => {
+                this.autoFormatJSON();
+            }
+        });
+    }
+
+    /**
+     * Highlight JSON syntax errors
+     * Visual indication of JSON errors in the editor
+     */
+    highlightJSONError(line, message) {
+        this.clearJSONErrors();
+        
+        const lineHandle = this.editors.json.instance.addLineClass(line - 1, 'background', 'json-error-line');
+        
+        // Add error marker in gutter
+        const marker = document.createElement('div');
+        marker.className = 'json-error-marker';
+        marker.title = message;
+        marker.innerHTML = '⚠';
+        marker.style.color = '#ff5555';
+        marker.style.cursor = 'pointer';
+        
+        this.editors.json.instance.setGutterMarker(line - 1, 'CodeMirror-lint-markers', marker);
+    }
+
+    /**
+     * Clear JSON error highlights
+     * Removes all JSON error indicators from the editor
+     */
+    clearJSONErrors() {
+        this.editors.json.instance.eachLine((lineHandle) => {
+            this.editors.json.instance.removeLineClass(lineHandle, 'background', 'json-error-line');
+        });
+        this.editors.json.instance.clearGutter('CodeMirror-lint-markers');
     }
 
     checkForErrors() {
@@ -694,43 +929,13 @@ class EditorManager {
 
 }
 
-// Initialize Editor Manager
-const editorManager = new EditorManager();
+/**
+ * Initialize Editor Manager and Event Listeners
+ * Sets up the main editor manager instance and global event handlers
+ */
+document.addEventListener('DOMContentLoaded', function() {
+    const editorManager = new EditorManager();
 
-// Setup UI Controls
-document.getElementById('runBtn').addEventListener('click', () => editorManager.updatePreview());
-document.getElementById('saveBtn').addEventListener('click', () => editorManager.saveCode());
-document.getElementById('resetBtn').addEventListener('click', () => {
-    if (confirm('Are you sure you want to reset the editor? All unsaved changes will be lost.')) {
-        editorManager.resetCode();
-    }
+    // Load saved code if exists
+    editorManager.loadSavedCode();
 });
-
-// Toggle Preview Panel
-document.getElementById('togglePreview').addEventListener('click', () => {
-    const previewPanel = document.querySelector('.preview-panel');
-    previewPanel.classList.toggle('collapsed');
-});
-
-// Auto-update preview (debounced)
-const debounce = (func, wait) => {
-    let timeout;
-    return function executedFunction(...args) {
-        const later = () => {
-            clearTimeout(timeout);
-            func(...args);
-        };
-        clearTimeout(timeout);
-        timeout = setTimeout(later, wait);
-    };
-};
-
-const debouncedUpdate = debounce(() => editorManager.updatePreview(), 500);
-
-// Add event listeners for editor changes
-Object.values(editorManager.editors).forEach(editor => {
-    editor.instance.on('change', debouncedUpdate);
-});
-
-// Load saved code if exists
-editorManager.loadSavedCode();
